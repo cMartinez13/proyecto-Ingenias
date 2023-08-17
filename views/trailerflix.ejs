@@ -1,0 +1,13 @@
+<%- include('./partials/header') %>
+<h1><%= title %></h1>
+<h2> <%= message %></h2>
+<div class="container ">
+
+    <% for (let i = 0; i < products.length; i++) { %>
+        <li><%= products[i].titulo %> - <%= products[i].categoria %> - <%= products[i].genero %></li>
+        <% } %>
+       
+</div>
+<div class="container">
+</div>
+<%- include('./partials/footer') %> 
