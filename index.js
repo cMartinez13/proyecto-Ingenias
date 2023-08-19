@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const bodyParser = require('body-parser');
-const { leerPeliculas, obtenerReparto } = require('./src/trailer.manager');
+const { leerPeliculas} = require('./src/trailer.manager');
 const app = express();
 const path = require("path");
 const PORT =process.env.PORT || 3008;
@@ -9,6 +9,7 @@ let DB = [];
 
 //Exportamos el archivo trailer.manager.js
 const datos = require('./src/trailer.manager');
+const { title } = require('process');
 
 
 
@@ -28,6 +29,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('views'));
 // SERVIDOR WEB 
 
+
 app.get('/', (req,res)=>{
    const data = {
     title: 'Bienvenido a Trailerflix',
@@ -37,22 +39,64 @@ app.get('/', (req,res)=>{
    res.render('trailerflix', data)
 })
 
-app.get('/reparto:act', (req, res)=>{
-    console.log("VALOR RECIBIDO:", req.params.reparto)
-    console.log(typeof req.params.reparto);
-    const actores = obtenerReparto();
-    res.send(actores);
-   
+//RETORNA EL CATALOGO DE PELICULAS DE TRAILERFLIX
+
+app.get('/catalogo', (req,res)=>{
+   const catalogo = leerPeliculas()
+   res.json(catalogo);
+   })
+
+
+// Retorna los datos de la categoria elegida (series/peliculas)
+
+app.get('/categoria/:cat', (req, res) => {
+    const cat = req.params.cat.trim().toLowerCase();
+    const nombre = leerPeliculas().filter(nombre => nombre.categoria.toLowerCase() == cat);
+    if (nombre !== []) {
+        res.json(nombre);
+    } else {
+        res.status(404).send('No se encuentra la categoria');
+    }
+});
+
+// Retorna los datos del trailer de acuerdo al ID
+
+app.get('/trailer/:id', (req, res)=>{
+    const id = req.params.id;
+    const trailer = leerPeliculas().filter(trailer => trailer.id == id);
+    if (trailer !==[]){
+        const trailer1 = trailer.map(x => {
+            return {
+                titulo: x.titulo,
+                trailer: x.trailer
+            }
+        })
+        res.json(trailer1);
+    }else{
+        res.status(404).send('Esta pelicula/serie no tiene un trailer asociado')
+    }
 })
-/*
-app.get('/:id',(req,res)=>{
-    console.log("VALOR RECIBIDO:", req.params.id)
-    console.log(typeof req.params.id)
-    const id = parseInt(req.params.id)
-    const fruta = obtenerFrutaFind(id)
-    res.send(fruta);
+
+//Retorna los datos del reparto 
+app.get('/reparto/:act', (req, res)=>{
+    const act = req.params.act.trim().toLowerCase()
+    const reparto = leerPeliculas().filter(reparto => reparto.act = act);
+    if(reparto !==[]){
+        const reparto1 = reparto.map(x =>{
+            return{
+                titulo: x.titulo,
+                reparto: x.reparto
+            }
+        })
+        res.json(reparto1.includes(act))
+    }else{
+        res.status(404).send('No se encuentra un actor/actriz con ese nombre')
+    }
 })
-*/
+
+
+
+
 app.get('*', (req, res) => {
     res.status(404).send('Lo siento, la página que buscas no existe.'); 
 });
