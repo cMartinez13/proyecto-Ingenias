@@ -80,15 +80,15 @@ app.get('/trailer/:id', (req, res)=>{
 //Retorna los datos del reparto 
 app.get('/reparto/:act', (req, res)=>{
     const act = req.params.act.trim().toLowerCase()
-    const reparto = leerPeliculas().filter(reparto => reparto.act = act);
-    if(reparto !==[]){
-        const reparto1 = reparto.map(x =>{
+    const reparto = leerPeliculas().filter(actor => actor.reparto.toLowerCase().trim().includes(act) == act);
+    if(reparto != ""){
+        const reparto1 = reparto.map(actor =>{
             return{
-                titulo: x.titulo,
-                reparto: x.reparto
+                titulo: actor.titulo,
+                reparto: actor.reparto
             }
         })
-        res.json(reparto1.includes(act))
+        res.json(reparto1)
     }else{
         res.status(404).send('No se encuentra un actor/actriz con ese nombre')
     }
